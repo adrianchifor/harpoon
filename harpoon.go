@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	k8s_namespaces []string
-	images         []string
+	k8sNamespaces []string
+	images        []string
 )
 
 func main() {
@@ -43,7 +43,7 @@ func getImages() {
 		log.Fatalf("Failed to create Kubernetes client: %v", err)
 	}
 
-	for _, ns := range k8s_namespaces {
+	for _, ns := range k8sNamespaces {
 		if ns == "*" {
 			ns = ""
 			log.Printf("Getting Deployments in all namespaces ...")
@@ -108,14 +108,14 @@ func initNamespaces() {
 			log.Fatalf("Specify one or more namespaces (comma-separated) in 'NAMESPACES' env var, or '*' for all namespaces")
 		}
 		for _, ns := range namespaces {
-			k8s_namespaces = append(k8s_namespaces, strings.TrimSpace(ns))
+			k8sNamespaces = append(k8sNamespaces, strings.TrimSpace(ns))
 		}
 	} else {
 		value, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 		if err != nil {
 			log.Fatalf("Failed to get current Kubernetes namespace: %v", err)
 		}
-		k8s_namespaces = append(k8s_namespaces, strings.TrimSpace(string(value)))
+		k8sNamespaces = append(k8sNamespaces, strings.TrimSpace(string(value)))
 	}
 }
 
