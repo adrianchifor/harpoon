@@ -48,7 +48,7 @@ If you think harpoon should check more workload controllers, please open a GitHu
 
 ### Manual
 
-If you want to pre-pull specific Docker images and skip the Deployment checks, you can list your imags in `/config/images` in the container. See [daemonset-manual.yaml](./deploy/daemonset-manual.yaml) example.
+If you want to pre-pull specific Docker images and skip the Deployment checks, you can list your images in `/config/images` in the container. See [daemonset-manual.yaml](./deploy/daemonset-manual.yaml) example.
 
 ```
 $ kubectl apply -f deploy/daemonset-manual.yaml
