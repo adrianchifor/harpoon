@@ -1,6 +1,6 @@
 # harpoon
 
-Pre-pull Docker images on your Kubernetes nodes to speed up containers bootstrap and autoscaling.
+Pre-pull Docker images on Kubernetes nodes to speed up containers bootstrap and autoscaling.
 
 ## Setup
 
