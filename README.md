@@ -1,5 +1,7 @@
 # harpoon
 
+[![Docker](https://github.com/adrianchifor/harpoon/workflows/Publish%20Docker/badge.svg)](https://github.com/adrianchifor/harpoon/actions?query=workflow%3A%22Publish+Docker%22) [![Go Report Card](https://goreportcard.com/badge/github.com/adrianchifor/harpoon)](https://goreportcard.com/report/github.com/adrianchifor/harpoon)
+
 Pre-pull Docker images on Kubernetes nodes to speed up containers bootstrap and autoscaling.
 
 ## Setup
