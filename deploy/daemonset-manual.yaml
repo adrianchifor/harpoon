@@ -1,0 +1,47 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harpoon-images
+  namespace: default
+data:
+  images: |
+    nginx
+    gcr.io/your-project/your-image
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: harpoon
+  namespace: default
+  labels:
+    k8s-app: harpoon
+spec:
+  selector:
+    matchLabels:
+      name: harpoon
+  template:
+    metadata:
+      labels:
+        name: harpoon
+    spec:
+      initContainers:
+        - name: harpoon
+          image: adrianchifor/harpoon:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: docker
+              mountPath: /var/run/docker.sock
+            - name: images
+              mountPath: "/config"
+              readOnly: true
+      volumes:
+        - name: docker
+          hostPath:
+            path: /var/run/docker.sock
+        - name: images
+          configMap:
+            name: harpoon-images
+      containers:
+        - name: pause
+          image: gcr.io/google_containers/pause
