@@ -2,7 +2,7 @@
 
 [![Docker](https://github.com/adrianchifor/harpoon/workflows/Publish%20Docker/badge.svg)](https://github.com/adrianchifor/harpoon/actions?query=workflow%3A%22Publish+Docker%22) [![Go Report Card](https://goreportcard.com/badge/github.com/adrianchifor/harpoon)](https://goreportcard.com/report/github.com/adrianchifor/harpoon)
 
-Pre-pull Docker images on Kubernetes nodes to speed up containers bootstrap and autoscaling. It can automatically discover images from Deployments or just pull manually specified ones.
+Pre-pull Docker images on Kubernetes nodes to speed up containers bootstrap and autoscaling. It can automatically discover images from Deployments or just pull manually specified ones. Supports both Docker and cri-o.
 
 ## Setup
 
@@ -17,7 +17,7 @@ clusterrolebinding.rbac.authorization.k8s.io/harpoon created
 daemonset.apps/harpoon created
 ```
 
-This will run harpoon as the init container in a DaemonSet and then run pause as the main container, so we keep the pod up and we don't leave the host Docker socket exposed. It will also setup RBAC so harpoon can get/list Deployments in the cluster.
+This will run harpoon as the init container in a DaemonSet and then run pause as the main container, so we keep the pod up and we don't leave the host Docker/cri-o socket exposed. It will also setup RBAC so harpoon can get/list Deployments in the cluster.
 
 By default it gets the Docker images from Deployments in the same namespace and pulls them. You can define `NAMESPACES` env var and tell harpoon to scan other namespaces:
 

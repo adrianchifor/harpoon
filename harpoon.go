@@ -133,15 +133,29 @@ func removeDuplicateImages() {
 	images = result
 }
 
+func isRuntimeCrio() bool {
+	sock, err := os.Stat("/var/run/crio/crio.sock")
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !sock.IsDir()
+}
+
 func pullImages() {
 	jobPool := parallel.SmallJobPool()
 	defer jobPool.Close()
+
+	binary := "/bin/docker"
+	crio := isRuntimeCrio()
+	if crio {
+		binary = "/bin/crictl"
+	}
 
 	gcrAuthenticated := false
 
 	for _, image := range images {
 		image := image
-		if strings.Contains(image, "gcr.io") && !gcrAuthenticated {
+		if !crio && strings.Contains(image, "gcr.io") && !gcrAuthenticated {
 			out, err := exec.Command("/bin/docker-credential-gcr", "configure-docker").Output()
 			if err != nil {
 				log.Printf("Failed to authenticate with GCR: %v", err)
@@ -152,7 +166,7 @@ func pullImages() {
 		}
 
 		jobPool.AddJob(func() {
-			out, err := exec.Command("/bin/docker", "pull", image).Output()
+			out, err := exec.Command(binary, "pull", image).Output()
 			if err != nil {
 				log.Printf("Failed to pull Docker image '%s': %s", image, string(out))
 				return
