@@ -10,8 +10,8 @@ kind: ClusterRole
 metadata:
   name: harpoon
 rules:
-  - apiGroups: ["extensions", "apps"]
-    resources: ["deployments"]
+  - apiGroups: [""]
+    resources: ["pods"]
     verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

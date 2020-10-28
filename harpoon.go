@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/adrianchifor/go-parallel"
@@ -22,7 +24,7 @@ var (
 
 func main() {
 	getImages()
-	removeDuplicateImages()
+	sortImagesByPopularity()
 	pullImages()
 }
 
@@ -46,28 +48,28 @@ func getImages() {
 	for _, ns := range k8sNamespaces {
 		if ns == "*" {
 			ns = ""
-			log.Printf("Getting Deployments in all namespaces ...")
+			log.Printf("Getting Pods in all namespaces ...")
 		} else {
-			log.Printf("Getting Deployments in namespace '%s' ...", ns)
+			log.Printf("Getting Pods in namespace '%s' ...", ns)
 		}
 
-		deploys, err := k8s.AppsV1().Deployments(ns).List(metav1.ListOptions{})
+		pods, err := k8s.CoreV1().Pods(ns).List(metav1.ListOptions{})
 		if err != nil {
-			log.Printf("Failed to get Deployments in namespace '%s': %v", ns, err)
+			log.Printf("Failed to get Pods in namespace '%s': %v", ns, err)
 			continue
 		}
-		if len(deploys.Items) == 0 {
+		if len(pods.Items) == 0 {
 			log.Printf("None found")
 			continue
 		}
 
-		for _, deploy := range deploys.Items {
-			log.Printf("Found '%s' with Docker images:", deploy.Name)
-			for _, container := range deploy.Spec.Template.Spec.InitContainers {
+		for _, pod := range pods.Items {
+			log.Printf("Found '%s' with Docker images:", pod.Name)
+			for _, container := range pod.Spec.InitContainers {
 				log.Printf("- %s", container.Image)
 				images = append(images, container.Image)
 			}
-			for _, container := range deploy.Spec.Template.Spec.Containers {
+			for _, container := range pod.Spec.Containers {
 				log.Printf("- %s", container.Image)
 				images = append(images, container.Image)
 			}
@@ -119,7 +121,14 @@ func initNamespaces() {
 	}
 }
 
-func removeDuplicateImages() {
+func sortImagesByPopularity() {
+	// Get image occurences
+	imageCounts := make(map[string]int)
+	for _, image := range images {
+		imageCounts[image]++
+	}
+
+	// Remove duplicates
 	encountered := make(map[string]struct{})
 	result := []string{}
 
@@ -127,6 +136,23 @@ func removeDuplicateImages() {
 		if _, found := encountered[image]; !found {
 			encountered[image] = struct{}{}
 			result = append(result, image)
+		}
+	}
+
+	// Sort result by highest occurence first
+	sort.Slice(result, func(i, j int) bool {
+		return imageCounts[result[j]] < imageCounts[result[i]]
+	})
+
+	// Limit images pulled if env set
+	if value, ok := os.LookupEnv("LIMIT"); ok {
+		limit, err := strconv.Atoi(value)
+		if err != nil {
+			log.Fatalf("Failed to convert LIMIT env to integer: %v", err)
+		}
+		if limit < len(result) {
+			log.Printf("LIMIT env is set, only pulling top %d images", limit)
+			result = result[:limit]
 		}
 	}
 
