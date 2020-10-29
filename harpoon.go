@@ -160,7 +160,7 @@ func sortImagesByPopularity() {
 }
 
 func isRuntimeCrio() bool {
-	sock, err := os.Stat("/var/run/crio/crio.sock")
+	sock, err := os.Stat("/run/crio/crio.sock")
 	if os.IsNotExist(err) {
 		return false
 	}

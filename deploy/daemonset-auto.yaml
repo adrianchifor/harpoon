@@ -51,6 +51,7 @@ spec:
           volumeMounts:
             - name: docker
               mountPath: /var/run/docker.sock
+              # mountPath: /run/crio/crio.sock (for cri-o)
       volumes:
         - name: docker
           hostPath:
