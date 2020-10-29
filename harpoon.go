@@ -194,7 +194,7 @@ func pullImages() {
 		jobPool.AddJob(func() {
 			out, err := exec.Command(binary, "pull", image).Output()
 			if err != nil {
-				log.Printf("Failed to pull Docker image '%s': %s", image, string(out))
+				log.Printf("Failed to pull Docker image '%s': %s : %v", image, string(out), err)
 				return
 			}
 
