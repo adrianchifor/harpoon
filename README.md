@@ -52,6 +52,16 @@ env:
     value: "10"
 ```
 
+If you want to ignore some images, specify their prefixes as a comma-separated list:
+
+```
+env:
+  - name: IGNORE
+    value: "quay.io/openshift-release-dev/,k8s.gcr.io/"
+```
+
+
+
 ### Manual
 
 If you want to pre-pull specific Docker images and skip the Pod checks, you can list your images in `/config/images` in the container. See [daemonset-manual.yaml](./deploy/daemonset-manual.yaml) example.

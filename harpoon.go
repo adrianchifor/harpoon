@@ -15,6 +15,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	// For local testing
+	// "path/filepath"
+	// "k8s.io/client-go/tools/clientcmd"
+	// "k8s.io/client-go/util/homedir"
 )
 
 var (
@@ -24,7 +28,7 @@ var (
 
 func main() {
 	getImages()
-	sortImagesByPopularity()
+	filterImages()
 	pullImages()
 }
 
@@ -37,6 +41,8 @@ func getImages() {
 	initNamespaces()
 
 	config, err := rest.InClusterConfig()
+	// For local testing
+	// config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
 	if err != nil {
 		log.Fatalf("Failed to get Kubernetes in-cluster config: %v", err)
 	}
@@ -121,7 +127,7 @@ func initNamespaces() {
 	}
 }
 
-func sortImagesByPopularity() {
+func filterImages() {
 	// Get image occurences
 	imageCounts := make(map[string]int)
 	for _, image := range images {
@@ -137,6 +143,27 @@ func sortImagesByPopularity() {
 			encountered[image] = struct{}{}
 			result = append(result, image)
 		}
+	}
+
+	// Remove ignored images if env set
+	if value, ok := os.LookupEnv("IGNORE"); ok {
+		ignoredImages := strings.Split(value, ",")
+		log.Printf("IGNORE env is set, ignoring images with prefixes %s", ignoredImages)
+		ignoredResult := []string{}
+		for _, image := range result {
+			ignore := false
+			for _, ignoredImage := range ignoredImages {
+				if strings.HasPrefix(image, strings.TrimSpace(ignoredImage)) {
+					ignore = true
+					break
+				}
+			}
+			if !ignore {
+				ignoredResult = append(ignoredResult, image)
+			}
+		}
+
+		result = ignoredResult
 	}
 
 	// Sort result by highest occurence first
