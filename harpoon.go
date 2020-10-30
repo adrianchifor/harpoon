@@ -199,9 +199,24 @@ func pullImages() {
 	defer jobPool.Close()
 
 	binary := "/bin/docker"
+
+	privateRegistry := ""
+	privateRegistryAuth := ""
+
 	crio := isRuntimeCrio()
 	if crio {
+		log.Printf("Found /run/crio/crio.sock, using crictl")
 		binary = "/bin/crictl"
+
+		if valueRegistry, ok := os.LookupEnv("PRIVATE_REGISTRY"); ok {
+			if valueRegistryAuth, ok := os.LookupEnv("PRIVATE_REGISTRY_AUTH"); ok {
+				log.Printf("PRIVATE_REGISTRY_AUTH env is set, will use auth for images containing '%s'", valueRegistry)
+				privateRegistry = valueRegistry
+				privateRegistryAuth = valueRegistryAuth
+			} else {
+				log.Printf("PRIVATE_REGISTRY env is set but not PRIVATE_REGISTRY_AUTH, ignoring")
+			}
+		}
 	}
 
 	gcrAuthenticated := false
@@ -219,7 +234,14 @@ func pullImages() {
 		}
 
 		jobPool.AddJob(func() {
-			out, err := exec.Command(binary, "pull", image).Output()
+			var out []byte
+			var err error
+			if crio && privateRegistry != "" && strings.Contains(image, privateRegistry) {
+				out, err = exec.Command(binary, "pull", "--auth", privateRegistryAuth, image).Output()
+			} else {
+				out, err = exec.Command(binary, "pull", image).Output()
+			}
+
 			if err != nil {
 				log.Printf("Failed to pull Docker image '%s': %s : %v", image, string(out), err)
 				return
