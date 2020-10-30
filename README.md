@@ -60,7 +60,20 @@ env:
     value: "quay.io/openshift-release-dev/,k8s.gcr.io/"
 ```
 
+To use a private registry with cri-o, specify the registry name and auth (base64 of username:password).
 
+Any image that contains the `PRIVATE_REGISTRY` will use `crictl pull --auth $PRIVATE_REGISTRY_AUTH <image>`.
+
+```
+env:
+  - name: PRIVATE_REGISTRY
+    value: registry.company.com
+  - name: PRIVATE_REGISTRY_AUTH
+    valueFrom:
+      secretKeyRef:
+        name: registry-auth
+        key: auth
+```
 
 ### Manual
 
