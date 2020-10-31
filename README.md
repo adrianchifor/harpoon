@@ -30,7 +30,7 @@ By default it gets the Docker images from Pods in the same namespace and pulls t
 ```
 initContainers:
   - name: harpoon
-    image: adrianchifor/harpoon:latest
+    image: ghcr.io/adrianchifor/harpoon:latest
     env:
       - name: NAMESPACES
         value: "ns1,ns2"
