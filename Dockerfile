@@ -13,10 +13,12 @@ COPY *.go go.mod /go/src/harpoon/
 
 RUN go mod download
 
-RUN GOOS=linux GOARCH=amd64 go build -o /go/bin/harpoon
+RUN go build -o /go/bin/harpoon
 
 # Runner
 FROM alpine
+
+LABEL org.opencontainers.image.source https://github.com/adrianchifor/harpoon
 
 RUN apk add --no-cache ca-certificates && update-ca-certificates
 
