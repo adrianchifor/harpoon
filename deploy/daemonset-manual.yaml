@@ -27,7 +27,7 @@ spec:
     spec:
       initContainers:
         - name: harpoon
-          image: adrianchifor/harpoon:latest
+          image: ghcr.io/adrianchifor/harpoon:latest
           imagePullPolicy: Always
           volumeMounts:
             - name: docker
