@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/adrianchifor/go-parallel v0.1.0
+	github.com/gogo/protobuf v1.3.2 // indirect
 	k8s.io/apimachinery v0.17.0
 	k8s.io/client-go v0.17.0
 )
