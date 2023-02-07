@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine as builder
+FROM golang:1.19-alpine as builder
 
 RUN apk add --no-cache curl git gcc musl-dev docker
 
@@ -9,7 +9,7 @@ RUN curl -fsSL "https://github.com/kubernetes-sigs/cri-tools/releases/download/v
   | tar xz --to-stdout > /bin/crictl && chmod +x /bin/crictl
 
 WORKDIR /go/src/harpoon
-COPY *.go go.mod /go/src/harpoon/
+COPY *.go go.mod go.sum /go/src/harpoon/
 
 RUN go mod download
 

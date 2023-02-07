@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"io/ioutil"
+	"context"
 	"log"
 	"os"
 	"os/exec"
@@ -59,7 +59,7 @@ func getImages() {
 			log.Printf("Getting Pods in namespace '%s' ...", ns)
 		}
 
-		pods, err := k8s.CoreV1().Pods(ns).List(metav1.ListOptions{})
+		pods, err := k8s.CoreV1().Pods(ns).List(context.Background(), metav1.ListOptions{})
 		if err != nil {
 			log.Printf("Failed to get Pods in namespace '%s': %v", ns, err)
 			continue
@@ -119,7 +119,7 @@ func initNamespaces() {
 			k8sNamespaces = append(k8sNamespaces, strings.TrimSpace(ns))
 		}
 	} else {
-		value, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+		value, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 		if err != nil {
 			log.Fatalf("Failed to get current Kubernetes namespace: %v", err)
 		}
